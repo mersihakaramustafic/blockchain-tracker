@@ -15,7 +15,7 @@ with open(csv_file_path, mode='r', newline='', encoding='utf-8') as file:
     for row in reader:
         data.append(row)
 
-connection_string = os.getenv('CONNECTION_STRING')
+connection_string = os.getenv('PSQL_CONNECTION_STRING')
 db_connection = psycopg2.connect(connection_string)
 db_connection_cursor = db_connection.cursor()
 

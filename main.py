@@ -11,14 +11,14 @@ import constants
 load_dotenv()
 
 # Connect to the Polygon or Base Mainnet node
-web3 = Web3(Web3.HTTPProvider(constants.polygon_url + os.getenv('API_KEY')))
+web3 = Web3(Web3.HTTPProvider(constants.polygon_url + os.getenv('INFURA_API_KEY')))
 
 if not web3.is_connected():
     raise Exception("Failed to connect to the blockchain node")
 
 # Apply PoA middleware if connected to a PoA network
 web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-connection_string = os.getenv('CONNECTION_STRING')
+connection_string = os.getenv('PSQL_CONNECTION_STRING')
 db_connection = psycopg2.connect(connection_string)
 db_connection_cursor = db_connection.cursor()
 
