@@ -1,4 +1,4 @@
-def store_event(event, conn, cur):
+def store_event(event, db_connection, db_connection_cursor):
     query = """
         INSERT INTO public.blockchain_tracker (user_op_hash,sender,paymaster,nonce,success,actual_gas_cost,actual_gas_used,event_name,transaction_index,transaction_hash,address,block_hash,block_number,timestamp)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
@@ -22,7 +22,7 @@ def store_event(event, conn, cur):
     )
 
     try:
-        cur.execute(query, values)
-        conn.commit()
+        db_connection_cursor.execute(query, values)
+        db_connection.commit()
     except Exception as e:
-        conn.rollback()
+        db_connection.rollback()
