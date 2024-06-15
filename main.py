@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import constants as c
 import psycopg2
+import time
 
 # Load the .env file
 load_dotenv()
@@ -33,20 +34,9 @@ connection_string = os.getenv('CONNECTION_STRING')
 event_signature = c.event_signature
 event_signature_hash = Web3.keccak(text=event_signature).hex()
 
-# Define the block number to query
-block_number = c.block_number  # add from and to block
-
-# Define the filter parameters
-filter_params = {
-    "fromBlock": block_number,
-    "toBlock": block_number,
-    "address": contract_address,
-    "topics": [event_signature_hash]
-}
-
 
 # Function to handle new events
-def handle_event(event, conn, cur):
+def store_event(event, conn, cur):
     query = """
         INSERT INTO public.blockchain_tracker (user_op_hash,sender,paymaster,nonce,success,actual_gas_cost,actual_gas_used,event_name,transaction_index,transaction_hash,address,block_hash,block_number,timestamp)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
@@ -63,11 +53,10 @@ def handle_event(event, conn, cur):
         event['event'],
         event['transactionIndex'],
         event['transactionHash'],
-        #'Transaction 123',
         event['address'],
         event['blockHash'],
         event['blockNumber'],
-        datetime.strptime(event['timestamp'], '%m/%d/%y %H:%M:%S')
+        event['timestamp']
     )
 
     try:
@@ -81,24 +70,60 @@ conn = psycopg2.connect(connection_string)
 print("Successful connection")
 cur = conn.cursor()
 
-# Fetch logs for the specified block
-try:
-    events = web3.eth.get_logs(filter_params)
-    # print(f"Number of events found: {len(events)}")
 
-    # Decode and print event data
-    for event in events:
-        # Decode the log data using the ABI of the contract       
-        decoded_event = contract.events.UserOperationEvent().process_log(event)  
-        block = web3.eth.get_block(event['blockNumber'])
-        timestamp = block['timestamp']
-        dt_object = datetime.fromtimestamp(timestamp)
-        formatted_time = dt_object.strftime('%m/%d/%y %H:%M:%S')
-        event_json = json.loads(web3.to_json(decoded_event))
-        event_json["timestamp"] = formatted_time
-        with open('data.json', 'w', encoding='utf-8') as f:
-            json.dump(event_json, f, ensure_ascii=False, indent=4)
-        handle_event(event_json, conn, cur)
+def get_latest_blocks(contract_address, web3):
+    latest_block = web3.eth.block_number
+    current_time = time.time()
+    time_limit = current_time - 60 # last minute
+    blocks = []
 
-except ValueError as e:
-    print(f"Error fetching logs: {e}")
+    for block_number in range(latest_block, 0, -1):
+        block = web3.eth.get_block(block_number, full_transactions=True)
+        block_time = block.timestamp
+
+        if block_time < time_limit:
+            break
+
+        for tx in block.transactions:
+            if tx.to and tx.to.lower() == contract_address.lower():
+                blocks.append(block)
+                break
+
+    return blocks
+
+def get_from_to_blocks(blocks_arr):
+
+    from_block = min(block.number for block in blocks_arr)
+    to_block = max(block.number for block in blocks_arr)
+
+    return from_block, to_block
+
+
+def get_user_operations():
+
+    blocks = get_latest_blocks(c.contract_address, web3)
+    from_block, to_block = get_from_to_blocks(blocks)    
+    filter_params = {
+        "fromBlock": from_block,
+        "toBlock": to_block,
+        "address": contract_address,
+        "topics": [event_signature_hash]
+    }
+
+    try:
+        events = web3.eth.get_logs(filter_params)
+        print(f"Number of events found: {len(events)}")
+        for event in events:
+            # Decode the log data using the ABI of the contract       
+            decoded_event = contract.events.UserOperationEvent().process_log(event)              
+            block = web3.eth.get_block(event['blockNumber'])
+            event_json = json.loads(web3.to_json(decoded_event))
+            event_json["timestamp"] = block['timestamp']
+
+            #store_event(event_json, conn, cur)
+
+
+    except ValueError as e:
+        print(f"Error fetching logs: {e}")
+
+get_user_operations()
