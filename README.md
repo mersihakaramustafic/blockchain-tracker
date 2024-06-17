@@ -1,13 +1,11 @@
 
 # Blockchain Tracker
 
-Blockchain Tracker is tracking the number of UserOperation Event per duration (hour/day/week) on Polygon Mainnet, storing data in database, and visualizing the data.
+Blockchain Tracker monitors the number of UserOperation Events on the Polygon Mainnet, segmented by duration (hour/day/week). The data is stored in a PostgreSQL database, which is hosted on [Neon](https://neon.tech/), and visualized using Grafana.
 
-Data is stored in PostgreSQL, which is hosted on [Neon](https://neon.tech/).
+Biconomy Bundler addresses are imported from an ERC4337 CSV file into the database, enabling identification of from_to addresses that are part of the Biconomy Bundler addresses.
 
-Biconomy Bundler adresses are imported from ERC4337 CSV file into database, so we can check which from_to address are part of Biconomy Bundler addresses.
-
-Data is visualized through charts in Grafana.
+Data import processes are automated through GitHub Actions.
 
 
 ## Run Locally
@@ -39,7 +37,7 @@ Start the program
 
 ## Environment Variables
 
-To run this project locally, you will need to add the following environment variables to your .env file
+To run this project locally, you will need to add the following environment variables to your .env file:
 
 `INFURA_API_KEY`
 
