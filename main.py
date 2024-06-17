@@ -70,7 +70,10 @@ def get_user_operations():
             block = web3.eth.get_block(event['blockNumber'])
             event_json = json.loads(web3.to_json(decoded_event))
             event_json["timestamp"] = block['timestamp']
+            transaction = web3.eth.get_transaction(event_json["transactionHash"])
+            event_json["fromAddress"] = transaction['from']
             store_event(event_json, db_connection, db_connection_cursor)
+
 
     except ValueError as e:
         print(f"Error fetching logs: {e}")

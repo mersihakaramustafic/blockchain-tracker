@@ -1,7 +1,7 @@
 def store_event(event, db_connection, db_connection_cursor):
     query = """
-        INSERT INTO public.blockchain_tracker (user_op_hash,sender,paymaster,nonce,success,actual_gas_cost,actual_gas_used,event_name,transaction_index,transaction_hash,address,block_hash,block_number,timestamp)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
+        INSERT INTO public.blockchain_tracker (user_op_hash,sender,paymaster,nonce,success,actual_gas_cost,actual_gas_used,event_name,transaction_index,transaction_hash,address,from_address,block_hash,block_number,timestamp)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) 
         ON CONFLICT (user_op_hash, transaction_hash) DO NOTHING;
     """
     values = (
@@ -16,6 +16,7 @@ def store_event(event, db_connection, db_connection_cursor):
         event['transactionIndex'],
         event['transactionHash'],
         event['address'],
+        event['fromAddress'],
         event['blockHash'],
         event['blockNumber'],
         event['timestamp']
