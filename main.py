@@ -37,7 +37,7 @@ def open_connection_to_psql():
 def get_latest_blocks(contract_address, web3):
     latest_block = web3.eth.block_number
     current_time = time.time()
-    time_limit = current_time - 60 # last 12 minutes
+    time_limit = current_time - 720 # last 12 minutes
     blocks = []
 
     for block_number in range(latest_block, 0, -1):
