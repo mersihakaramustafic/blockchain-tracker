@@ -10,17 +10,29 @@ import constants
 
 load_dotenv()
 
-# Connect to the Polygon or Base Mainnet node
-web3 = Web3(Web3.HTTPProvider(constants.polygon_url + os.getenv('INFURA_API_KEY')))
+def connect_to_mainnet():
+    try:
+        # Connect to the Polygon or Base Mainnet node
+        web3 = Web3(Web3.HTTPProvider(constants.polygon_url + os.getenv('INFURA_API_KEY')))
 
-if not web3.is_connected():
-    raise Exception("Failed to connect to the blockchain node")
+        if not web3.is_connected():
+            raise Exception("Failed to connect to the blockchain node")
+        
+        # Apply PoA middleware if connected to a PoA network
+        web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-# Apply PoA middleware if connected to a PoA network
-web3.middleware_onion.inject(geth_poa_middleware, layer=0)
-connection_string = os.getenv('PSQL_CONNECTION_STRING')
-db_connection = psycopg2.connect(connection_string)
-db_connection_cursor = db_connection.cursor()
+        return web3
+
+    except ValueError as e:
+        print(f"Error connecting to the blockchain node: {e}") 
+
+def open_connection_to_psql():
+    
+    connection_string = os.getenv('PSQL_CONNECTION_STRING')
+    db_connection = psycopg2.connect(connection_string)
+    db_connection_cursor = db_connection.cursor()
+
+    return db_connection, db_connection_cursor
 
 def get_latest_blocks(contract_address, web3):
     latest_block = web3.eth.block_number
@@ -51,6 +63,8 @@ def get_from_to_blocks(blocks_arr):
 
 def get_user_operations():
 
+    web3 = connect_to_mainnet()
+    db_connection, db_connection_cursor = open_connection_to_psql()
     contract_address_check_sum = web3.to_checksum_address(constants.contract_address)
     contract = web3.eth.contract(address=contract_address_check_sum, abi=constants.contract_abi["result"])
     blocks = get_latest_blocks(contract_address_check_sum, web3)
