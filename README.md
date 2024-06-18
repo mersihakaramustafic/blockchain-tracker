@@ -1,7 +1,7 @@
 
 # Blockchain Tracker
 
-Blockchain Tracker monitors the number of UserOperation Events on the Polygon Mainnet, segmented by duration (hour/day/week). The data is stored in a PostgreSQL database, which is hosted on [Neon](https://neon.tech/), and visualized using [Grafana](https://grafana.com/).
+Blockchain Tracker monitors the number of UserOperation Events on the Polygon Mainnet, segmented by duration (hour/day/week). The data is stored in a PostgreSQL database, which is hosted on [Neon](https://neon.tech/), and visualized using [Grafana](https://grafana.com/). UserOperation Events are tracked through [Infura API](https://www.infura.io/).
 
 Biconomy Bundler addresses are imported from an ERC4337 CSV file into the database, enabling identification of from_to addresses that are part of the Biconomy Bundler addresses.
 
@@ -16,6 +16,17 @@ To create a PostgreSQL database in [Neon](https://neon.tech/), follow these step
 2. Once the database is created, execute the following SQL scripts located in the "database setup queries" folder to create the necessary tables:
 - `create_table_biconomy_bundlers.sql`
 - `create_table_blockchain_tracker.sql`
+
+
+## Environment Variables
+
+To run this project locally, you will need to add the following environment variables to your .env file:
+
+`INFURA_API_KEY`
+
+`PSQL_CONNECTION_STRING`
+
+INFURA_API_KEY is generated on [infura.io](https://www.infura.io/). For the purpose of this project, I stored the environment variables in Github -> Settings -> Secrets and Variables, so Github Actions can be run.
 
 
 ## Run Locally
@@ -43,17 +54,6 @@ Start the program
 ```bash
   python main.py
 ```
-
-
-## Environment Variables
-
-To run this project locally, you will need to add the following environment variables to your .env file:
-
-`INFURA_API_KEY`
-
-`PSQL_CONNECTION_STRING`
-
-For the purpose of this project, I stored the environment variables in Github -> Settings -> Secrets and Variables, so Github Actions can be run.
 
 
 ## Dashboard Implementation
