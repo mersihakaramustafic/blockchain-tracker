@@ -1,7 +1,7 @@
 
 # Blockchain Tracker
 
-Blockchain Tracker monitors the number of UserOperation Events on the Polygon Mainnet, segmented by duration (hour/day/week). The data is stored in a PostgreSQL database, which is hosted on [Neon](https://neon.tech/), and visualized using Grafana.
+Blockchain Tracker monitors the number of UserOperation Events on the Polygon Mainnet, segmented by duration (hour/day/week). The data is stored in a PostgreSQL database, which is hosted on [Neon](https://neon.tech/), and visualized using [Grafana](https://grafana.com/).
 
 Biconomy Bundler addresses are imported from an ERC4337 CSV file into the database, enabling identification of from_to addresses that are part of the Biconomy Bundler addresses.
 
@@ -54,6 +54,15 @@ To run this project locally, you will need to add the following environment vari
 `PSQL_CONNECTION_STRING`
 
 For the purpose of this project, I stored the environment variables in Github -> Settings -> Secrets and Variables, so Github Actions can be run.
+
+
+## Dashboard Implementation
+
+To create charts in [Grafana](https://grafana.com/), please follow these steps:
+
+1. Sign up for an account on Grafana.
+2. Create a new dashboard.
+3. Generate the charts by executing the queries located in the "grafana queries" folder.
 
 
 ## 🔗 Links
