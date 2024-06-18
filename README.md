@@ -8,6 +8,16 @@ Biconomy Bundler addresses are imported from an ERC4337 CSV file into the databa
 Data import processes are automated through GitHub Actions.
 
 
+## Database Setup
+
+To create a PostgreSQL database in [Neon](https://neon.tech/), follow these steps:
+
+1. Establish a PostgreSQL database within the Neon platform.
+2. Once the database is created, execute the following SQL scripts located in the "database setup queries" folder to create the necessary tables:
+- `create_table_biconomy_bundlers.sql`
+- `create_table_blockchain_tracker.sql`
+
+
 ## Run Locally
 
 Clone the project
